@@ -20,11 +20,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        // Build participants HTML: chip with initials + email, or fallback if none
+        const participants = Array.isArray(details.participants) ? details.participants : [];
+        const participantsHTML = participants.length
+          ? `<div class="participants-section"><strong>Participants:</strong><ul class="participants-list">` +
+              participants
+                .map((p) => {
+                  const local = String(p).split("@")[0] || "";
+                  const parts = local.split(/[\._\-]+/).filter(Boolean);
+                  const initials = (parts.length
+                    ? parts.map(s => s[0])
+                    : [local[0] || ""] )
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase();
+                  return `<li><span class="participant-badge">${initials}</span>${p}</li>`;
+                })
+                .join("") +
+              `</ul></div>`
+          : `<div class="participants-section"><em class="no-participants">No participants yet</em></div>`;
+
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          ${participantsHTML}
         `;
 
         activitiesList.appendChild(activityCard);
